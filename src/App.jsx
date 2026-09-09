@@ -13,6 +13,7 @@ import SectionPicker from './pages/SectionPicker'
 import SectionShell from './pages/section/SectionShell'
 import TakeAttendance from './pages/section/TakeAttendance'
 import Roster from './pages/section/Roster'
+import Reports from './pages/section/Reports'
 import Redlist from './pages/section/Redlist'
 import ClassDays from './pages/section/ClassDays'
 
@@ -59,6 +60,7 @@ function AppRoutes() {
         <Route index element={<Navigate to="attendance" replace />} />
         <Route path="attendance" element={<TakeAttendance />} />
         <Route path="roster" element={<Roster />} />
+        <Route path="reports" element={<Reports />} />
         <Route path="redlist" element={<Redlist />} />
         <Route path="class-days" element={<ClassDays />} />
       </Route>

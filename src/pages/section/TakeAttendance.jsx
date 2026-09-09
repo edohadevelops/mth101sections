@@ -4,13 +4,14 @@ import { QRCodeSVG } from 'qrcode.react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '../../lib/supabaseClient'
 import { useAuth } from '../../lib/AuthContext'
+import { localDateStr } from '../../lib/localDate'
 
 const TOKEN_TTL = 15
 const ROTATE_EVERY = 12
 const POLL_EVERY = 6
 
 function todayStr() {
-  return new Date().toISOString().slice(0, 10)
+  return localDateStr()
 }
 
 export default function TakeAttendance() {
@@ -23,6 +24,7 @@ export default function TakeAttendance() {
   const [token, setToken] = useState(null)
   const [running, setRunning] = useState(false)
   const [checkins, setCheckins] = useState([])
+  const [loadError, setLoadError] = useState('')
   const [fullscreen, setFullscreen] = useState(false)
   const containerRef = useRef(null)
   const rotateTimer = useRef(null)
@@ -53,11 +55,17 @@ export default function TakeAttendance() {
   }
 
   async function loadCheckins(sid) {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('attendance')
       .select('id, checked_in_at, method, students(full_name, m_number, photo_url, is_test)')
       .eq('session_id', sid)
       .order('checked_in_at', { ascending: false })
+    if (error) {
+      console.error('Failed to load check-ins:', error)
+      setLoadError(error.message)
+      return
+    }
+    setLoadError('')
     setCheckins(data || [])
   }
 
@@ -201,6 +209,7 @@ export default function TakeAttendance() {
       {!fullscreen && (
         <div className="mt-6 bg-white rounded-2xl shadow-card p-5">
           <h2 className="font-display text-lg text-maroon-800 mb-3">Live roll — {realCheckins.length} today</h2>
+          {loadError && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3.5 py-2.5 mb-3">{loadError}</p>}
           <ManualCheckIn sectionId={sectionId} sessionId={sessionId} profile={profile} onMarked={() => loadCheckins(sessionId)} />
           <AnimatePresence initial={false}>
             <div className="divide-y divide-maroon-50 mt-1">

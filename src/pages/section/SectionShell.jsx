@@ -8,6 +8,7 @@ import { syncSectionSessions } from '../../lib/sessionSync'
 const tabs = [
   { to: 'attendance', label: 'Take Attendance' },
   { to: 'roster', label: 'Roster' },
+  { to: 'reports', label: 'Reports' },
   { to: 'redlist', label: 'Redlist' },
   { to: 'class-days', label: 'Class Days' },
 ]

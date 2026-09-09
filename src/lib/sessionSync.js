@@ -1,9 +1,6 @@
 import { supabase } from './supabaseClient'
 import { isFederalHoliday } from './holidays'
-
-function toISO(d) {
-  return d.toISOString().slice(0, 10)
-}
+import { localDateStr } from './localDate'
 
 // Generates every missing class_sessions row for a section — every date
 // between the term's start/end that matches one of the section's scheduled
@@ -32,7 +29,7 @@ export async function syncSectionSessions(sectionId) {
     const jsDay = d.getDay() // 0=Sun..6=Sat
     const ourDay = jsDay // our weekday convention is also 1=Mon..4=Thu, 0/5/6 unused
     if (!scheduledWeekdays.has(ourDay)) continue
-    const iso = toISO(d)
+    const iso = localDateStr(d)
     if (existingSet.has(iso) || holidaySet.has(iso) || isFederalHoliday(iso)) continue
     toCreate.push({ section_id: sectionId, session_date: iso })
   }
