@@ -17,6 +17,7 @@ export default function Sections() {
   const [sections, setSections] = useState([])
   const [termFilter, setTermFilter] = useState('')
   const [editing, setEditing] = useState(null) // section id, or 'new'
+  const [error, setError] = useState('')
 
   useEffect(() => { load() }, [])
 
@@ -41,10 +42,16 @@ export default function Sections() {
   }
 
   async function loadSections() {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('sections')
-      .select('*, terms(name), courses(code), instructor_sections(instructor_id, role, profiles(display_name)), section_schedule(*)')
+      .select('*, terms(name), courses(code), instructor_sections(instructor_id, role, profiles!instructor_sections_instructor_id_fkey(display_name)), section_schedule(*)')
       .order('section_number')
+    if (error) {
+      console.error('Failed to load sections:', error)
+      setError(error.message)
+      return
+    }
+    setError('')
     setSections(data || [])
   }
 
@@ -82,6 +89,7 @@ export default function Sections() {
         </div>
       </div>
 
+      {error && <p className="text-sm text-red-600 mb-4 bg-red-50 rounded-lg px-3.5 py-2.5">{error}</p>}
       {terms.length === 0 && <p className="text-maroon-400 text-sm mb-4">Create a term first, from the Terms tab.</p>}
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
