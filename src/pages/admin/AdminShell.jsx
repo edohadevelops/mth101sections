@@ -5,8 +5,8 @@ import { useAuth } from '../../lib/AuthContext'
 
 const tabs = [
   { to: 'terms', label: 'Terms' },
-  { to: 'sections', label: 'Sections' },
   { to: 'instructors', label: 'Instructors' },
+  { to: 'sections', label: 'Sections' },
   { to: 'reset', label: 'Reset Data' },
 ]
 

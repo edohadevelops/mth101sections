@@ -198,95 +198,103 @@ function SectionModal({ sectionId, section, terms, courses, instructors, default
 
   return (
     <div className="fixed inset-0 bg-maroon-900/40 grid place-items-center z-40 px-4 py-8 overflow-y-auto" onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-card p-6 w-full max-w-lg" onClick={(e) => e.stopPropagation()}>
-        <h3 className="font-display text-lg text-maroon-800 mb-4">{sectionId ? 'Edit section' : 'New section'}</h3>
+      <div className="bg-white rounded-2xl shadow-card w-full max-w-2xl my-auto" onClick={(e) => e.stopPropagation()}>
+        <div className="p-6 max-h-[85vh] overflow-y-auto">
+          <h3 className="font-display text-lg text-maroon-800 mb-5">{sectionId ? 'Edit section' : 'New section'}</h3>
 
-        <div className="grid grid-cols-2 gap-3 mb-4">
-          <label className="block">
-            <span className="block text-xs font-semibold text-maroon-500 uppercase tracking-wide mb-1">Term</span>
-            <select value={termId} onChange={(e) => setTermId(e.target.value)} className="input">
-              {terms.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
-            </select>
-          </label>
-          <label className="block">
-            <span className="block text-xs font-semibold text-maroon-500 uppercase tracking-wide mb-1">Course</span>
-            <select value={courseId} onChange={(e) => setCourseId(e.target.value)} className="input">
-              {courses.map((c) => <option key={c.id} value={c.id}>{c.code}</option>)}
-            </select>
-          </label>
-        </div>
-
-        <label className="block mb-4">
-          <span className="block text-xs font-semibold text-maroon-500 uppercase tracking-wide mb-1">Section number</span>
-          <input value={sectionNumber} onChange={(e) => setSectionNumber(e.target.value)} className="input" placeholder="003" />
-        </label>
-
-        <p className="text-xs font-semibold text-maroon-500 uppercase tracking-wide mb-2">Meeting times</p>
-        <div className="space-y-2 mb-4">
-          {WEEKDAYS.map((w) => (
-            <div key={w.n} className="flex items-center gap-2">
-              <label className="flex items-center gap-1.5 w-24 text-sm text-maroon-700">
-                <input
-                  type="checkbox"
-                  checked={schedule[w.n].meets}
-                  onChange={(e) => setSchedule({ ...schedule, [w.n]: { ...schedule[w.n], meets: e.target.checked } })}
-                />
-                {w.label.slice(0, 3)}
-              </label>
-              <input
-                type="time" disabled={!schedule[w.n].meets}
-                value={schedule[w.n].start}
-                onChange={(e) => setSchedule({ ...schedule, [w.n]: { ...schedule[w.n], start: e.target.value } })}
-                className="rounded-md border border-maroon-100 px-2 py-1 text-sm disabled:opacity-40"
-              />
-              <span className="text-maroon-300 text-sm">–</span>
-              <input
-                type="time" disabled={!schedule[w.n].meets}
-                value={schedule[w.n].end}
-                onChange={(e) => setSchedule({ ...schedule, [w.n]: { ...schedule[w.n], end: e.target.value } })}
-                className="rounded-md border border-maroon-100 px-2 py-1 text-sm disabled:opacity-40"
-              />
-            </div>
-          ))}
-        </div>
-
-        <div className="flex items-center justify-between mb-2">
-          <p className="text-xs font-semibold text-maroon-500 uppercase tracking-wide">Instructors</p>
-          <button onClick={addAssignment} type="button" className="text-xs text-maroon-600 hover:text-maroon-800 underline underline-offset-2">
-            + Add instructor
-          </button>
-        </div>
-        <div className="space-y-2 mb-5">
-          {assignments.map((a, i) => (
-            <div key={i} className="flex items-center gap-2">
-              <select
-                value={a.instructor_id}
-                onChange={(e) => setAssignments(assignments.map((x, j) => j === i ? { ...x, instructor_id: e.target.value } : x))}
-                className="flex-1 rounded-md border border-maroon-100 px-2 py-1.5 text-sm"
-              >
-                {instructors.map((ins) => <option key={ins.id} value={ins.id}>{ins.display_name}</option>)}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+            <label className="block">
+              <span className="block text-xs font-semibold text-maroon-500 uppercase tracking-wide mb-1">Term</span>
+              <select value={termId} onChange={(e) => setTermId(e.target.value)} className="input">
+                {terms.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
               </select>
-              <select
-                value={a.role}
-                onChange={(e) => setAssignments(assignments.map((x, j) => j === i ? { ...x, role: e.target.value } : x))}
-                className="rounded-md border border-maroon-100 px-2 py-1.5 text-sm"
-              >
-                <option value="lead">Lead</option>
-                <option value="support">Support</option>
+            </label>
+            <label className="block">
+              <span className="block text-xs font-semibold text-maroon-500 uppercase tracking-wide mb-1">Course</span>
+              <select value={courseId} onChange={(e) => setCourseId(e.target.value)} className="input">
+                {courses.map((c) => <option key={c.id} value={c.id}>{c.code}</option>)}
               </select>
-              <button onClick={() => setAssignments(assignments.filter((_, j) => j !== i))} type="button" className="text-maroon-300 hover:text-red-600 text-sm px-1">✕</button>
+            </label>
+            <label className="block">
+              <span className="block text-xs font-semibold text-maroon-500 uppercase tracking-wide mb-1">Section number</span>
+              <input value={sectionNumber} onChange={(e) => setSectionNumber(e.target.value)} className="input" placeholder="003" />
+            </label>
+          </div>
+
+          <div className="bg-maroon-50 rounded-xl p-4 mb-6">
+            <p className="text-xs font-semibold text-maroon-500 uppercase tracking-wide mb-3">Meeting times</p>
+            <div className="space-y-2">
+              {WEEKDAYS.map((w) => (
+                <div key={w.n} className="grid grid-cols-[100px_1fr_16px_1fr] items-center gap-3">
+                  <label className="flex items-center gap-2 text-sm text-maroon-700">
+                    <input
+                      type="checkbox"
+                      checked={schedule[w.n].meets}
+                      onChange={(e) => setSchedule({ ...schedule, [w.n]: { ...schedule[w.n], meets: e.target.checked } })}
+                    />
+                    {w.label}
+                  </label>
+                  <input
+                    type="time" disabled={!schedule[w.n].meets}
+                    value={schedule[w.n].start}
+                    onChange={(e) => setSchedule({ ...schedule, [w.n]: { ...schedule[w.n], start: e.target.value } })}
+                    className="w-full rounded-md border border-maroon-100 bg-white px-2 py-1.5 text-sm disabled:opacity-40 disabled:bg-maroon-50"
+                  />
+                  <span className="text-maroon-300 text-sm text-center">–</span>
+                  <input
+                    type="time" disabled={!schedule[w.n].meets}
+                    value={schedule[w.n].end}
+                    onChange={(e) => setSchedule({ ...schedule, [w.n]: { ...schedule[w.n], end: e.target.value } })}
+                    className="w-full rounded-md border border-maroon-100 bg-white px-2 py-1.5 text-sm disabled:opacity-40 disabled:bg-maroon-50"
+                  />
+                </div>
+              ))}
             </div>
-          ))}
-          {assignments.length === 0 && <p className="text-maroon-300 text-xs">No instructors assigned yet.</p>}
-        </div>
+          </div>
 
-        {error && <p className="text-sm text-red-600 mb-3">{error}</p>}
+          <div className="bg-maroon-50 rounded-xl p-4 mb-6">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-xs font-semibold text-maroon-500 uppercase tracking-wide">Instructors</p>
+              <button onClick={addAssignment} type="button" disabled={instructors.length === 0} className="text-xs text-maroon-600 hover:text-maroon-800 disabled:opacity-40 disabled:hover:text-maroon-600 underline underline-offset-2">
+                + Add instructor
+              </button>
+            </div>
+            <div className="space-y-2">
+              {instructors.length === 0 && (
+                <p className="text-maroon-400 text-xs">No instructors exist yet — create one from the Instructors tab first, then come back to assign them.</p>
+              )}
+              {assignments.map((a, i) => (
+                <div key={i} className="grid grid-cols-[1fr_110px_28px] items-center gap-2">
+                  <select
+                    value={a.instructor_id}
+                    onChange={(e) => setAssignments(assignments.map((x, j) => j === i ? { ...x, instructor_id: e.target.value } : x))}
+                    className="w-full rounded-md border border-maroon-100 bg-white px-2 py-1.5 text-sm"
+                  >
+                    {instructors.map((ins) => <option key={ins.id} value={ins.id}>{ins.display_name}</option>)}
+                  </select>
+                  <select
+                    value={a.role}
+                    onChange={(e) => setAssignments(assignments.map((x, j) => j === i ? { ...x, role: e.target.value } : x))}
+                    className="w-full rounded-md border border-maroon-100 bg-white px-2 py-1.5 text-sm"
+                  >
+                    <option value="lead">Lead</option>
+                    <option value="support">Support</option>
+                  </select>
+                  <button onClick={() => setAssignments(assignments.filter((_, j) => j !== i))} type="button" className="text-maroon-300 hover:text-red-600 text-sm justify-self-center">✕</button>
+                </div>
+              ))}
+              {assignments.length === 0 && <p className="text-maroon-300 text-xs">No instructors assigned yet.</p>}
+            </div>
+          </div>
 
-        <div className="flex justify-end gap-2">
-          <button onClick={onClose} className="text-sm text-maroon-400 hover:text-maroon-700 px-3 py-2">Cancel</button>
-          <button onClick={save} disabled={busy} className="text-sm bg-maroon-700 hover:bg-maroon-800 disabled:opacity-50 text-white rounded-lg px-4 py-2">
-            {busy ? 'Saving…' : 'Save'}
-          </button>
+          {error && <p className="text-sm text-red-600 mb-3">{error}</p>}
+
+          <div className="flex justify-end gap-2">
+            <button onClick={onClose} className="text-sm text-maroon-400 hover:text-maroon-700 px-3 py-2">Cancel</button>
+            <button onClick={save} disabled={busy} className="text-sm bg-maroon-700 hover:bg-maroon-800 disabled:opacity-50 text-white rounded-lg px-4 py-2">
+              {busy ? 'Saving…' : 'Save'}
+            </button>
+          </div>
         </div>
       </div>
     </div>
