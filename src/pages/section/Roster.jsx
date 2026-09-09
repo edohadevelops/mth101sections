@@ -42,6 +42,16 @@ export default function Roster() {
   }
 
   async function toggleActive(s) { await supabase.from('students').update({ active: !s.active }).eq('id', s.id); load() }
+
+  async function addTestStudent() {
+    const testMNumber = `TEST-${profile.username.toUpperCase()}`
+    const { error } = await supabase.from('students').upsert(
+      { section_id: sectionId, m_number: testMNumber, full_name: `TEST-${profile.display_name}`, active: true, is_test: true },
+      { onConflict: 'section_id,m_number' }
+    )
+    setMsg(error ? `Couldn't create test student: ${error.message}` : `Test student ready — M-number is ${testMNumber}.`)
+    load()
+  }
   async function removeStudent(s) {
     if (!confirm(`Remove ${s.full_name} permanently? Consider marking inactive instead.`)) return
     await supabase.from('students').delete().eq('id', s.id); load()
@@ -127,6 +137,7 @@ export default function Roster() {
           </label>
           <button onClick={() => csvRef.current?.click()} className="text-sm border border-maroon-200 hover:border-maroon-400 text-maroon-700 rounded-lg px-3.5 py-2 transition">Import CSV</button>
           <input ref={csvRef} type="file" accept=".csv" className="hidden" onChange={onCsvFile} />
+          <button onClick={addTestStudent} className="text-sm border border-maroon-200 hover:border-maroon-400 text-maroon-700 rounded-lg px-3.5 py-2 transition">+ Add test student for me</button>
           <button onClick={() => setEditing('new')} className="text-sm border border-maroon-200 hover:border-maroon-400 text-maroon-700 rounded-lg px-3.5 py-2 transition">+ Add student</button>
         </div>
       </div>
