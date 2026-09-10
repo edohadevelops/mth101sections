@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
 import { useAuth } from '../../lib/AuthContext'
+import Tip from '../../lib/Tip'
+import { bannerGradient } from '../../lib/cardBanner'
 
 const WEEKDAYS = [
   { n: 1, label: 'Monday' },
@@ -73,54 +75,61 @@ export default function Sections() {
       <div className="flex flex-wrap items-end justify-between gap-4 mb-6">
         <div>
           <h1 className="font-display text-2xl text-maroon-800">Sections</h1>
-          <p className="text-maroon-400 text-sm mt-1">Section number, meeting times, and who teaches it.</p>
         </div>
         <div className="flex items-center gap-3">
-          <select value={termFilter} onChange={(e) => setTermFilter(e.target.value)} className="rounded-lg border border-maroon-100 px-3 py-2 text-sm text-maroon-800">
-            {terms.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
-          </select>
-          <button
-            onClick={() => setEditing('new')}
-            disabled={terms.length === 0}
-            className="text-sm bg-maroon-700 hover:bg-maroon-800 disabled:opacity-50 text-white rounded-lg px-3.5 py-2 transition"
-          >
-            + New section
-          </button>
+          <Tip tipKey="section-term-filter" title="Filter by term" text="Show only sections from one term at a time.">
+            <select value={termFilter} onChange={(e) => setTermFilter(e.target.value)} className="rounded-lg border border-maroon-100 px-3 py-2 text-sm text-maroon-800">
+              {terms.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+            </select>
+          </Tip>
+          <Tip tipKey="new-section-btn" title="New section" text="Set the section number, meeting times, and which instructors teach it, all in one step.">
+            <button
+              onClick={() => setEditing('new')}
+              disabled={terms.length === 0}
+              className="text-sm bg-maroon-700 hover:bg-maroon-800 disabled:opacity-50 text-white rounded-lg px-3.5 py-2 transition"
+            >
+              + New section
+            </button>
+          </Tip>
         </div>
       </div>
 
       {error && <p className="text-sm text-red-600 mb-4 bg-red-50 rounded-lg px-3.5 py-2.5">{error}</p>}
       {terms.length === 0 && <p className="text-maroon-400 text-sm mb-4">Create a term first, from the Terms tab.</p>}
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {visible.map((s) => (
-          <div key={s.id} className={`bg-white rounded-2xl shadow-card p-5 ${s.status === 'archived' ? 'opacity-50' : ''}`}>
-            <div className="flex items-start justify-between mb-2">
-              <div>
-                <p className="font-display text-lg text-maroon-800">{s.courses?.code} — {s.section_number}</p>
-                <p className="text-maroon-400 text-xs">{s.terms?.name}</p>
+          <div key={s.id} className={`bg-white rounded-2xl shadow-card overflow-hidden ${s.status === 'archived' ? 'opacity-50' : ''}`}>
+            <div className={`relative h-20 bg-gradient-to-br ${bannerGradient(s.id)} flex items-center justify-between px-5`}>
+              <span className="font-display text-white/90 text-lg">{s.courses?.code} — {s.section_number}</span>
+              {s.status === 'archived' && <span className="text-[10px] bg-white/90 text-maroon-600 rounded px-1.5 py-0.5">ARCHIVED</span>}
+            </div>
+            <div className="p-5">
+              <p className="text-maroon-400 text-xs mb-3">{s.terms?.name}</p>
+              <div className="text-xs text-maroon-500 mb-3">
+                {(s.section_schedule || []).sort((a, b) => a.weekday - b.weekday).map((sc) => (
+                  <div key={sc.weekday}>{WEEKDAYS.find((w) => w.n === sc.weekday)?.label}: {sc.start_time}–{sc.end_time}</div>
+                ))}
               </div>
-              {s.status === 'archived' && <span className="text-[10px] bg-maroon-50 text-maroon-500 rounded px-1.5 py-0.5">ARCHIVED</span>}
-            </div>
-            <div className="text-xs text-maroon-500 mb-3">
-              {(s.section_schedule || []).sort((a, b) => a.weekday - b.weekday).map((sc) => (
-                <div key={sc.weekday}>{WEEKDAYS.find((w) => w.n === sc.weekday)?.label}: {sc.start_time}–{sc.end_time}</div>
-              ))}
-            </div>
-            <div className="flex flex-wrap gap-1 mb-4">
-              {(s.instructor_sections || []).map((is, i) => (
-                <span key={i} className="text-xs bg-maroon-50 text-maroon-600 rounded px-2 py-0.5">
-                  {is.profiles?.display_name} ({is.role})
-                </span>
-              ))}
-              {!(s.instructor_sections || []).length && <span className="text-xs text-maroon-200">No instructor assigned</span>}
-            </div>
-            <div className="flex gap-3 text-xs">
-              <button onClick={() => setEditing(s.id)} className="text-maroon-500 hover:text-maroon-800">Edit</button>
-              {s.status === 'active'
-                ? <button onClick={() => archive(s, 'archived')} className="text-maroon-500 hover:text-maroon-800">Archive</button>
-                : <button onClick={() => archive(s, 'active')} className="text-maroon-500 hover:text-maroon-800">Unarchive</button>}
-              <button onClick={() => remove(s)} className="text-maroon-300 hover:text-red-600">Delete</button>
+              <div className="flex flex-wrap gap-1 mb-4">
+                {(s.instructor_sections || []).map((is, i) => (
+                  <span key={i} className="text-xs bg-maroon-50 text-maroon-600 rounded px-2 py-0.5">
+                    {is.profiles?.display_name} ({is.role})
+                  </span>
+                ))}
+                {!(s.instructor_sections || []).length && <span className="text-xs text-maroon-200">No instructor assigned</span>}
+              </div>
+              <div className="flex gap-3 text-xs">
+                <button onClick={() => setEditing(s.id)} className="text-maroon-500 hover:text-maroon-800">Edit</button>
+                {s.status === 'active'
+                  ? <Tip tipKey="archive-btn" title="Archive" text="Hides this section from the default view and from instructors' section list, without deleting any data. Reversible any time." side="top">
+                      <button onClick={() => archive(s, 'archived')} className="text-maroon-500 hover:text-maroon-800">Archive</button>
+                    </Tip>
+                  : <button onClick={() => archive(s, 'active')} className="text-maroon-500 hover:text-maroon-800">Unarchive</button>}
+                <Tip tipKey="delete-section-btn" title="Delete section" text="Permanently deletes this section and everything in it — roster, attendance, redlist history. Cannot be undone." side="top">
+                  <button onClick={() => remove(s)} className="text-maroon-300 hover:text-red-600">Delete</button>
+                </Tip>
+              </div>
             </div>
           </div>
         ))}
@@ -205,9 +214,9 @@ function SectionModal({ sectionId, section, terms, courses, instructors, default
   }
 
   return (
-    <div className="fixed inset-0 bg-maroon-900/40 grid place-items-center z-40 px-4 py-8 overflow-y-auto" onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-card w-full max-w-2xl my-auto" onClick={(e) => e.stopPropagation()}>
-        <div className="p-6 max-h-[85vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-maroon-900/40 overflow-y-auto z-40 px-4 py-8" onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-card w-full max-w-2xl mx-auto" onClick={(e) => e.stopPropagation()}>
+        <div className="p-6">
           <h3 className="font-display text-lg text-maroon-800 mb-5">{sectionId ? 'Edit section' : 'New section'}</h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">

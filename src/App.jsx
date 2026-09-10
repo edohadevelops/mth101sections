@@ -1,6 +1,7 @@
 import React from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './lib/AuthContext'
+import { TooltipProvider } from './lib/TooltipProvider'
 import Login from './pages/Login'
 import ForceChangePassword from './pages/ForceChangePassword'
 import CheckIn from './pages/CheckIn'
@@ -73,7 +74,9 @@ function AppRoutes() {
 export default function App() {
   return (
     <AuthProvider>
-      <AppRoutes />
+      <TooltipProvider>
+        <AppRoutes />
+      </TooltipProvider>
     </AuthProvider>
   )
 }

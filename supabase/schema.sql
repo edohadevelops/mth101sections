@@ -554,6 +554,25 @@ $$;
 grant execute on function reset_all_data() to authenticated;
 
 -- ---------------------------------------------------------------------------
+-- TOOLTIP_DISMISSALS  (per-user "I've seen this, stop showing it" state —
+-- persisted per person, so it follows them across devices, not just one
+-- browser's localStorage)
+-- ---------------------------------------------------------------------------
+create table if not exists tooltip_dismissals (
+  user_id uuid not null references profiles(id) on delete cascade,
+  tooltip_key text not null,
+  dismissed_at timestamptz not null default now(),
+  primary key (user_id, tooltip_key)
+);
+
+alter table tooltip_dismissals enable row level security;
+
+drop policy if exists "own tooltip dismissals" on tooltip_dismissals;
+create policy "own tooltip dismissals" on tooltip_dismissals for all
+  using (user_id = auth.uid()) with check (user_id = auth.uid());
+
+
+-- ---------------------------------------------------------------------------
 -- STORAGE (student photos, uploaded via the Roster tab)
 -- ---------------------------------------------------------------------------
 insert into storage.buckets (id, name, public)
