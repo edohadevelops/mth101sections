@@ -15,9 +15,26 @@ export function TooltipProvider({ children }) {
 
   useEffect(() => {
     if (!profile?.id) return
+    let settled = false
+    const timeout = setTimeout(() => {
+      if (!settled) {
+        console.error('Tooltip preferences took too long to load — showing tips anyway.')
+        setLoaded(true)
+      }
+    }, 5000)
+
     supabase.from('tooltip_dismissals').select('tooltip_key').eq('user_id', profile.id)
-      .then(({ data }) => {
+      .then(({ data, error }) => {
+        settled = true
+        clearTimeout(timeout)
+        if (error) console.error('Could not load tooltip preferences (showing tips anyway):', error)
         setDismissed(new Set((data || []).map((d) => d.tooltip_key)))
+        setLoaded(true)
+      })
+      .catch((err) => {
+        settled = true
+        clearTimeout(timeout)
+        console.error('Tooltip preferences failed to load (showing tips anyway):', err)
         setLoaded(true)
       })
   }, [profile?.id])
