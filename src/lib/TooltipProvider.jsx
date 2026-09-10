@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import React, { createContext, useContext, useEffect, useState, useRef, useCallback } from 'react'
 import { supabase } from './supabaseClient'
 import { useAuth } from './AuthContext'
 
@@ -8,6 +8,10 @@ export function TooltipProvider({ children }) {
   const { profile } = useAuth()
   const [dismissed, setDismissed] = useState(new Set())
   const [loaded, setLoaded] = useState(false)
+  // Ordered list of tip keys currently mounted on screen — used to decide
+  // which ONE gets to show its popup at a time.
+  const order = useRef([])
+  const [, forceTick] = useState(0)
 
   useEffect(() => {
     if (!profile?.id) return
@@ -17,6 +21,15 @@ export function TooltipProvider({ children }) {
         setLoaded(true)
       })
   }, [profile?.id])
+
+  const register = useCallback((key) => {
+    if (!order.current.includes(key)) order.current.push(key)
+    forceTick((n) => n + 1)
+    return () => {
+      order.current = order.current.filter((k) => k !== key)
+      forceTick((n) => n + 1)
+    }
+  }, [])
 
   async function dismiss(key) {
     setDismissed((prev) => new Set(prev).add(key))
@@ -32,8 +45,12 @@ export function TooltipProvider({ children }) {
     }
   }
 
+  // The first mounted, not-yet-dismissed key in registration order is the
+  // only one allowed to show its auto-popup right now.
+  const activeKey = order.current.find((k) => !dismissed.has(k)) ?? null
+
   return (
-    <TooltipCtx.Provider value={{ isDismissed: (key) => dismissed.has(key), dismiss, resetAll, loaded }}>
+    <TooltipCtx.Provider value={{ isDismissed: (key) => dismissed.has(key), dismiss, resetAll, loaded, register, activeKey }}>
       {children}
     </TooltipCtx.Provider>
   )
