@@ -11,6 +11,7 @@ const tabs = [
   { to: 'reports', label: 'Reports' },
   { to: 'redlist', label: 'Redlist' },
   { to: 'class-days', label: 'Class Days' },
+  { to: 'backups', label: 'Backups' },
 ]
 
 export default function SectionShell() {
