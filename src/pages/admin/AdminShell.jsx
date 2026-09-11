@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../../lib/AuthContext'
+import ChangePasswordModal from '../../lib/ChangePasswordModal'
 
 const tabs = [
   { to: 'terms', label: 'Terms' },
@@ -15,6 +16,7 @@ export default function AdminShell() {
   const { profile, logout } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
+  const [changingPassword, setChangingPassword] = useState(false)
 
   async function onLogout() {
     await logout()
@@ -35,6 +37,9 @@ export default function AdminShell() {
             </div>
             <div className="flex items-center gap-4">
               <span className="hidden sm:block text-sm text-maroon-100">{profile?.display_name}</span>
+              <button onClick={() => setChangingPassword(true)} className="text-sm text-maroon-200 hover:text-white">
+                Change password
+              </button>
               <button onClick={onLogout} className="text-sm text-maroon-200 hover:text-white border border-maroon-500 hover:border-maroon-400 rounded-md px-3 py-1.5 transition">
                 Sign out
               </button>
@@ -59,6 +64,7 @@ export default function AdminShell() {
           </motion.div>
         </AnimatePresence>
       </main>
+      {changingPassword && <ChangePasswordModal onClose={() => setChangingPassword(false)} />}
     </div>
   )
 }
