@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '../../lib/supabaseClient'
 import { useAuth } from '../../lib/AuthContext'
 import { syncSectionSessions } from '../../lib/sessionSync'
+import ChangePasswordModal from '../../lib/ChangePasswordModal'
 
 const tabs = [
   { to: 'attendance', label: 'Take Attendance' },
@@ -20,6 +21,7 @@ export default function SectionShell() {
   const navigate = useNavigate()
   const location = useLocation()
   const [section, setSection] = useState(null)
+  const [changingPassword, setChangingPassword] = useState(false)
 
   useEffect(() => {
     supabase.from('sections').select('*, terms(name), courses(code)').eq('id', sectionId).single()
@@ -49,6 +51,9 @@ export default function SectionShell() {
             </div>
             <div className="flex items-center gap-4">
               <span className="hidden sm:block text-sm text-maroon-100">{profile?.display_name}</span>
+              <button onClick={() => setChangingPassword(true)} className="text-sm text-maroon-200 hover:text-white">
+                Change password
+              </button>
               <button onClick={onLogout} className="text-sm text-maroon-200 hover:text-white border border-maroon-500 hover:border-maroon-400 rounded-md px-3 py-1.5 transition">
                 Sign out
               </button>
@@ -73,6 +78,7 @@ export default function SectionShell() {
           </motion.div>
         </AnimatePresence>
       </main>
+      {changingPassword && <ChangePasswordModal onClose={() => setChangingPassword(false)} />}
     </div>
   )
 }
