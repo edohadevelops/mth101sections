@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabaseClient'
 import { useAuth } from '../../lib/AuthContext'
 import Tip from '../../lib/Tip'
@@ -13,6 +14,7 @@ const WEEKDAYS = [
 
 export default function Sections() {
   const { profile } = useAuth()
+  const navigate = useNavigate()
   const [terms, setTerms] = useState([])
   const [courses, setCourses] = useState([])
   const [instructors, setInstructors] = useState([])
@@ -120,6 +122,9 @@ export default function Sections() {
                 {!(s.instructor_sections || []).length && <span className="text-xs text-maroon-200">No instructor assigned</span>}
               </div>
               <div className="flex gap-3 text-xs">
+                <Tip tipKey="open-dashboard-btn" title="View this section" text="Opens the same dashboard the instructor sees — attendance, roster, redlist, everything — so you can see exactly what's happening in any section." side="top">
+                  <button onClick={() => navigate(`/section/${s.id}`)} className="text-maroon-600 hover:text-maroon-900 font-medium">Open dashboard</button>
+                </Tip>
                 <button onClick={() => setEditing(s.id)} className="text-maroon-500 hover:text-maroon-800">Edit</button>
                 {s.status === 'active'
                   ? <Tip tipKey="archive-btn" title="Archive" text="Hides this section from the default view and from instructors' section list, without deleting any data. Reversible any time." side="top">
