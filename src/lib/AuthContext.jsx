@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, useRef } from 'react'
 import { supabase } from './supabaseClient'
+import { backupSection, backupAllSections } from './backup'
 
 const AuthContext = createContext(null)
 
@@ -13,32 +14,11 @@ async function triggerLoginBackup(userId) {
     if (!profile) return
 
     if (profile.role === 'superadmin') {
-      const [terms, sections, students, sessions, attendance, redlist] = await Promise.all([
-        supabase.from('terms').select('*'),
-        supabase.from('sections').select('*'),
-        supabase.from('students').select('*'),
-        supabase.from('class_sessions').select('*'),
-        supabase.from('attendance').select('*'),
-        supabase.from('redlist_contacts').select('*'),
-      ])
-      await supabase.from('backups').insert({
-        triggered_by: userId, scope: 'all',
-        snapshot: { terms: terms.data, sections: sections.data, students: students.data, class_sessions: sessions.data, attendance: attendance.data, redlist_contacts: redlist.data },
-      })
+      await backupAllSections(userId)
     } else {
       const { data: links } = await supabase.from('instructor_sections').select('section_id').eq('instructor_id', userId)
       for (const link of links || []) {
-        const sectionId = link.section_id
-        const [students, sessions, attendance, redlist] = await Promise.all([
-          supabase.from('students').select('*').eq('section_id', sectionId),
-          supabase.from('class_sessions').select('*').eq('section_id', sectionId),
-          supabase.from('attendance').select('*, class_sessions!inner(section_id)').eq('class_sessions.section_id', sectionId),
-          supabase.from('redlist_contacts').select('*').eq('section_id', sectionId),
-        ])
-        await supabase.from('backups').insert({
-          triggered_by: userId, scope: sectionId,
-          snapshot: { students: students.data, class_sessions: sessions.data, attendance: attendance.data, redlist_contacts: redlist.data },
-        })
+        await backupSection(link.section_id, userId)
       }
     }
   } catch (err) {
