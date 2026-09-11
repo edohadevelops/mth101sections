@@ -142,6 +142,7 @@ export default function TakeAttendance() {
   const checkinUrl = session && token ? `${window.location.origin}/checkin?session=${session.id}&token=${token}` : null
   const realCheckins = checkins.filter((c) => !c.students?.is_test)
   const isClosed = session?.checkin_closes_at && new Date(session.checkin_closes_at) < new Date()
+  const isFuture = session && session.session_date > todayStr()
 
   return (
     <div>
@@ -188,6 +189,10 @@ export default function TakeAttendance() {
           <p className="text-maroon-300">Pick a class date to begin.</p>
         ) : !schedule?.start_time ? (
           <p className="text-maroon-300 text-center max-w-sm">This date isn't a scheduled class day for this section.</p>
+        ) : isFuture ? (
+          <p className="text-maroon-300 text-center max-w-sm">
+            This date hasn't happened yet — check-in opens once it's actually that day. You can still start it early that morning if you need to.
+          </p>
         ) : isClosed ? (
           <div className="text-center">
             <p className="text-maroon-200 font-display text-lg mb-1">Check-in closed for this date</p>
