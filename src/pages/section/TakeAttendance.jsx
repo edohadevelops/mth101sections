@@ -18,6 +18,7 @@ export default function TakeAttendance() {
   const { sectionId } = useOutletContext()
   const { profile } = useAuth()
   const [sessions, setSessions] = useState([])
+  const [sessionsLoading, setSessionsLoading] = useState(true)
   const [sessionId, setSessionId] = useState('')
   const [session, setSession] = useState(null)
   const [schedule, setSchedule] = useState(null)
@@ -33,11 +34,13 @@ export default function TakeAttendance() {
   useEffect(() => { loadSessions() }, [sectionId])
 
   async function loadSessions() {
+    setSessionsLoading(true)
     const { data } = await supabase.from('class_sessions').select('*').eq('section_id', sectionId).order('session_date', { ascending: true })
     setSessions(data || [])
     const today = todayStr()
     const match = (data || []).find((s) => s.session_date === today)
     setSessionId(match ? match.id : data?.[data.length - 1]?.id || '')
+    setSessionsLoading(false)
   }
 
   useEffect(() => {
@@ -150,17 +153,24 @@ export default function TakeAttendance() {
           </div>
           <div>
             <label className="block text-[11px] font-semibold text-maroon-500 uppercase tracking-wide mb-1">Class date</label>
-            <select
-              value={sessionId}
-              onChange={(e) => { stopSession(); setSessionId(e.target.value) }}
-              className="rounded-lg border border-maroon-100 px-3 py-2 text-sm text-maroon-800 bg-white min-w-[220px]"
-            >
-              {sessions.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {new Date(s.session_date + 'T12:00:00').toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
-                </option>
-              ))}
-            </select>
+            {sessionsLoading ? (
+              <div className="rounded-lg border border-maroon-100 px-3 py-2 text-sm text-maroon-300 bg-white min-w-[220px] flex items-center gap-2">
+                <span className="w-3.5 h-3.5 rounded-full border-2 border-maroon-200 border-t-maroon-600 animate-spin" />
+                Loading dates…
+              </div>
+            ) : (
+              <select
+                value={sessionId}
+                onChange={(e) => { stopSession(); setSessionId(e.target.value) }}
+                className="rounded-lg border border-maroon-100 px-3 py-2 text-sm text-maroon-800 bg-white min-w-[220px]"
+              >
+                {sessions.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {new Date(s.session_date + 'T12:00:00').toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
         </div>
       )}
@@ -169,14 +179,26 @@ export default function TakeAttendance() {
         {!fullscreen && <button onClick={toggleFullscreen} className="absolute top-4 right-4 text-maroon-200 hover:text-white text-xs border border-maroon-600 rounded-md px-2.5 py-1.5 transition">Full screen</button>}
         {fullscreen && <button onClick={toggleFullscreen} className="absolute top-6 right-6 text-maroon-300 hover:text-white text-sm">Exit</button>}
 
-        {!session ? (
+        {sessionsLoading ? (
+          <div className="flex flex-col items-center gap-3">
+            <span className="w-6 h-6 rounded-full border-2 border-maroon-500 border-t-white animate-spin" />
+            <p className="text-maroon-300 text-sm">Loading this section…</p>
+          </div>
+        ) : !session ? (
           <p className="text-maroon-300">Pick a class date to begin.</p>
         ) : !schedule?.start_time ? (
           <p className="text-maroon-300 text-center max-w-sm">This date isn't a scheduled class day for this section.</p>
         ) : isClosed ? (
           <div className="text-center">
             <p className="text-maroon-200 font-display text-lg mb-1">Check-in closed for this date</p>
-            <p className="text-maroon-400 text-sm">{realCheckins.length} student{realCheckins.length === 1 ? '' : 's'} checked in</p>
+            <p className="text-maroon-400 text-sm mb-5">{realCheckins.length} student{realCheckins.length === 1 ? '' : 's'} checked in</p>
+            <motion.button
+              whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
+              onClick={startSession}
+              className="bg-white hover:bg-maroon-50 text-maroon-700 font-semibold rounded-xl px-6 py-3 transition"
+            >
+              Reopen check-in
+            </motion.button>
           </div>
         ) : !running ? (
           <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: 'spring', stiffness: 300, damping: 18 }} className="text-center">
