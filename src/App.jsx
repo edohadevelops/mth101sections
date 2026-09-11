@@ -10,6 +10,7 @@ import Terms from './pages/admin/Terms'
 import Sections from './pages/admin/Sections'
 import Instructors from './pages/admin/Instructors'
 import ResetData from './pages/admin/ResetData'
+import AdminBackups from './pages/admin/Backups'
 import SectionPicker from './pages/SectionPicker'
 import SectionShell from './pages/section/SectionShell'
 import TakeAttendance from './pages/section/TakeAttendance'
@@ -17,6 +18,7 @@ import Roster from './pages/section/Roster'
 import Reports from './pages/section/Reports'
 import Redlist from './pages/section/Redlist'
 import ClassDays from './pages/section/ClassDays'
+import SectionBackups from './pages/section/Backups'
 
 function FullScreenLoader() {
   return (
@@ -54,6 +56,7 @@ function AppRoutes() {
         <Route path="terms" element={<Terms />} />
         <Route path="sections" element={<Sections />} />
         <Route path="instructors" element={<Instructors />} />
+        <Route path="backups" element={<AdminBackups />} />
         <Route path="reset" element={<ResetData />} />
       </Route>
 
@@ -64,6 +67,7 @@ function AppRoutes() {
         <Route path="reports" element={<Reports />} />
         <Route path="redlist" element={<Redlist />} />
         <Route path="class-days" element={<ClassDays />} />
+        <Route path="backups" element={<SectionBackups />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
