@@ -213,8 +213,8 @@ export default function TakeAttendance() {
           <ManualCheckIn sectionId={sectionId} sessionId={sessionId} profile={profile} onMarked={() => loadCheckins(sessionId)} />
           <AnimatePresence initial={false}>
             <div className="divide-y divide-maroon-50 mt-1">
-              {realCheckins.length === 0 && <p className="text-maroon-300 text-sm py-4">No check-ins yet.</p>}
-              {realCheckins.map((c) => (
+              {checkins.length === 0 && <p className="text-maroon-300 text-sm py-4">No check-ins yet.</p>}
+              {checkins.map((c) => (
                 <motion.div key={c.id} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} className="flex items-center justify-between py-2.5">
                   <div className="flex items-center gap-3">
                     <Avatar name={c.students?.full_name} url={c.students?.photo_url} />
@@ -224,6 +224,7 @@ export default function TakeAttendance() {
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
+                    {c.students?.is_test && <span className="text-[10px] bg-gold-100 text-gold-700 rounded px-1.5 py-0.5">TEST — not counted above</span>}
                     {c.method === 'manual' && <span className="text-[10px] bg-maroon-50 text-maroon-500 rounded px-1.5 py-0.5">manual</span>}
                     <span className="text-maroon-300 text-xs">{new Date(c.checked_in_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</span>
                     <button onClick={async () => { await supabase.from('attendance').delete().eq('id', c.id); loadCheckins(sessionId) }} className="text-maroon-200 hover:text-red-600 text-xs" title="Undo">✕</button>
