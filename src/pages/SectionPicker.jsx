@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../lib/AuthContext'
 import { bannerGradient } from '../lib/cardBanner'
 import Tip from '../lib/Tip'
+import ChangePasswordModal from '../lib/ChangePasswordModal'
 
 const WEEKDAY_ABBR = { 1: 'Mon', 2: 'Tue', 3: 'Wed', 4: 'Thu' }
 
@@ -13,6 +14,7 @@ export default function SectionPicker() {
   const navigate = useNavigate()
   const [sections, setSections] = useState([])
   const [loading, setLoading] = useState(true)
+  const [changingPassword, setChangingPassword] = useState(false)
 
   useEffect(() => { load() }, [])
 
@@ -35,6 +37,9 @@ export default function SectionPicker() {
           </div>
           <div className="flex items-center gap-4">
             <span className="hidden sm:block text-sm text-maroon-100">{profile?.display_name}</span>
+            <button onClick={() => setChangingPassword(true)} className="text-sm text-maroon-200 hover:text-white">
+              Change password
+            </button>
             <button onClick={logout} className="text-sm text-maroon-200 hover:text-white border border-maroon-500 hover:border-maroon-400 rounded-md px-3 py-1.5 transition">
               Sign out
             </button>
@@ -74,6 +79,7 @@ export default function SectionPicker() {
           </div>
         )}
       </main>
+      {changingPassword && <ChangePasswordModal onClose={() => setChangingPassword(false)} />}
     </div>
   )
 }
