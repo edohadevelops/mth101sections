@@ -7,6 +7,7 @@ const tabs = [
   { to: 'terms', label: 'Terms' },
   { to: 'instructors', label: 'Instructors' },
   { to: 'sections', label: 'Sections' },
+  { to: 'backups', label: 'Backups' },
   { to: 'reset', label: 'Reset Data' },
 ]
 
